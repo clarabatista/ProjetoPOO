@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <div>
+        <h2>Criar Nova Tarefa</h2>
+        <form id="novaTarefaForm">
+            <input type="text" id="titulo" placeholder="Título" required>
+            <textarea id="descricao" placeholder="Descrição"></textarea>
+            <input type="date" id="prazo">
+            <button type="submit">Criar</button>
+        </form>
+    </div>
+    <div>
+        <h2>Tarefas</h2>
+        <ul id="listaTarefas"></ul>
+    </div>
+    <script>
+        async function listarTarefas() {
+            const response = await fetch('/tarefas');
+            const tarefas = await response.json();
+            const listaTarefas = document.getElementById('listaTarefas');
+            listaTarefas.innerHTML = tarefas.map(tarefa => `
+                <li>${tarefa.titulo} - ${tarefa.status}</li>
+            `).join('');
+        }
+
+        document.getElementById('novaTarefaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titulo = document.getElementById('titulo').value;
+            const descricao = document.getElementById('descricao').value;
+            const prazo = document.getElementById('prazo').value;
+
+            await fetch('/tarefas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, descricao, prazo, status: 'PENDENTE' })
+            });
+            listarTarefas();
+        });
+
+        listarTarefas();
+    </script>
+</body>
+</html>
